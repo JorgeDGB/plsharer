@@ -1,0 +1,7 @@
+parameters:
+#    pl_sharer_auth.example.class: PlSharer\AuthBundle\Example
+
+services:
+#    pl_sharer_auth.example:
+#        class: %pl_sharer_auth.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

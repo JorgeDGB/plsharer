@@ -94,10 +94,8 @@ Cree un usuario y su base de datos para el proyecto:
     $ psql
     postgres=# CREATE USER plsharer WITH PASSWORD 'your_secret_password';
     CREATE ROLE
-    postgres=# CREATE DATABASE plsharer;
-    CREATE DATABASE
-    postgres=# GRANT ALL PRIVILEGES ON DATABASE plsharer TO plsharer;
-    GRANT
+    postgres=# ALTER USER plsharer CREATEDB;
+    ALTER ROLE
     postgres=#\q
     $ exit
 
@@ -416,14 +414,14 @@ class Tag:
 
 class Album:
     title       : string
-    artists     : [Artist]
+    artists     : Artist
     genre       : Genre
-    tag         : Tag
+    tags        : [Tag]
 
 class Song:
     title       : string
-    length      : time
-    album       : Album
+    length      : int
+    albums      : [Album]
     genre       : Genre
     year        : date
     tags        : [Tag]
@@ -438,11 +436,13 @@ class Playlist:
     tags        : [Tag]
     rating      : float
     created_at  : datetime
+    updated_at  : datetime
 
 class Vote:
     caster      : User
     playlist    : Playlist
     stars       : int          {1,2,3,4,5}
+    created_at  : datetime
 
 ```
 
@@ -503,6 +503,8 @@ configuración de seguridad a tu conveniencia.
 
 # Listo para empezar a echar código
 
+### Creando el modelo
+
 Para empezar, usamos la herramienta `console` de la linea de comando de 
 Symfony2 para generar los Bundles:
 
@@ -515,6 +517,327 @@ Una cónsola interactiva se muestra. Acepta todo a excepción del formato, para
 el cual hemos decidido usar `yml`, y cuando te pregunte si deseas que genere 
 toda la estructura de directorios, responde `yes`.
 
+Al final se habrá generado la siguiente estructura de directorios:
+
+```
+plsharer
+ |_app
+ |_bin
+ |_src
+ |  |_PlSharer
+ |     |_AuthBundle
+ |        |_Controller
+ |        |_DependencyInjection
+ |        |_Resources
+ |        |_Tests
+ |     |_MusicBundle
+ |        |_Controller
+ |        |_DependencyInjection
+ |        |_Resources
+ |        |_Tests
+ |     |_RankingBundle
+ |        |_Controller
+ |        |_DependencyInjection
+ |        |_Resources
+ |        |_Tests
+ |     |_SearchBundle
+ |        |_Controller
+ |        |_DependencyInjection
+ |        |_Resources
+ |        |_Tests
+ |_vendor
+ |_web
+```
+
+Poco a poco usaremos cada uno de los archivos y directorios generados. 
+
+Ahora empezemos a usar las herramientas de cli que proporciona Doctrine. Para 
+empezar, creemos la base de datos, por línea de comandos:
+
+    $ php app/console doctrine:database:create
+
+Ahora debemos crear las entidades o _Entities_. Para ello creamos en cada uno 
+de los bundles recien creados una carpeta llamada **Entity**
+
+Utiliza el siguiente comando para ejecutar un _wizard_ interactivo que te 
+guiará para construir la primera entidad. Haremos primero al entidad User. 
+Utiliza un nombre diferente (por ejemplo, MyUser) durante el wizard, porque la 
+palabra User es reservada en los DBMS. Luego le haremos un cambio al código 
+generado para que pueda llamarse User. Dile que si a la generación del 
+repositorio. Esta clase será usada para acceder a conjuntos de usuarios.
+
+    $ mv src/PlSharer/AuthBundle/Entity/MyUser.php src/PlSharer/AuthBundle/Entity/User.php
+    $ mv src/PlSharer/AuthBundle/Entity/MyUserRepository.php src/PlSharer/AuthBundle/Entity/UserRepository.php
+
+Ahora cambia los nombres de las clases para que coincidan con los nombres 
+nuevos de los archivos.
+
+En el archivo `User.php`, cambia la anotación `@ORM\Table()` por
+`@ORM\Table(name="SfUser")`, y ya no habrá problema con la palabra reservada.
+
+Repite el proceso para cada una de las entidades descritas anteriormente. Este 
+proceso sin embargo, no te deja crear referencias a otras clases. Crea los 
+campos de tipo string, y luego los modificamos.
+
+
+Vamos ahora a establecer las relaciones entre las clases. Imagina cómo son las 
+relaciones entre las clases, según lo definido arriba, y trata de utilizar las 
+anotaciones de Doctrine para definir las relaciones `OneToOne`, `ManyToOne`, 
+`OneToMany` y `ManyToMany`. En las relaciones bidireccionales, es importante 
+elegir correctamente el _owner side_, esto es, la clase que es responsable por 
+la relación. Para elegir bien, ayuda pensar que en el formulario del _owner
+side_ es común que se deba elegir uno o varios elementos pertenecientes a la 
+otra clase de la relación para la creación; esto es, La creación de una 
+instancia  de la clase del _owner side_ es la responsable de guardar la 
+relación en el momento de su creación. Si dudas, checkea el código para ver 
+nuestra aproximación.
+
+Para salir de una vez de la definición de los modelos, en todas las clases que 
+tienen campos como `createdAt` o `updatedAt`, vamos a hacer estos campos 
+_timestampables_, a través del bundle de Doctrine Extensions de Gedmo. Para 
+instalarlo, seguir [estas las instrucciones][6].
+
+Luego de instalarlo, importar en cada clase en que sea necesario el paquete, 
+colocando la siguiente línea en la cabezera del archivo:
+
+    ....
+    use Gedmo\Mapping\Annotation as Gedmo;
+    ....
+
+
+Luego, anotar cada campo `createdAt` y `updatedAt` como convenga, como en el 
+ejemplo que sigue:
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_at", type="datetime")
+     * @Gedmo\Timestampable(on="create")
+     */
+    private $createdAt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="updated_at", type="datetime")
+     * @Gedmo\Timestampable(on="update")
+     */
+    private $updatedAt;
+
+Para finalizar con el modelo, hay que escribir el comportamiento de los campos 
+que representan archivos. Esto es en las clases `User` y `Song`.
+
+En ambas clases se debe importar el validador, que le dirá a symfony que el campo al que fué aplicado manejará la carga de un archivo.
+
+    use Symfony\Component\Validator\Constraints as Assert;
+
+Crea una nueva propiedad para cada clase llamada `path`, que se encargue de 
+almacenar la ruta del archivo cargado, y quita las anotaciones de ORM de los campos anteriores. Añade a cada clase los siguientes métodos:
+
+```
+    .
+    .
+    .
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    public $path;
+    .
+    .
+    .
+    // Mas cosas
+    .
+    .
+    .
+    //Al final
+
+    public function getAbsolutePath()
+    {
+        return null === $this->path
+            ? null
+            : $this->getUploadRootDir().'/'.$this->path;
+    }
+
+    public function getWebPath()
+    {
+        return null === $this->path
+            ? null
+            : $this->getUploadDir().'/'.$this->path;
+    }
+
+    protected function getUploadRootDir()
+    {
+        // the absolute directory path where uploaded
+        // documents should be saved
+        return __DIR__.'/../../../../web/'.$this->getUploadDir();
+    }
+
+    protected function getUploadDir()
+    {
+        // get rid of the __DIR__ so it doesn't screw up
+        // when displaying uploaded doc/image in the view.
+        return 'uploads/documents';
+    }
+```
+
+Estos metodos son métodos de conveniecia para saber donde almacenar el archivo 
+cargado en el sistema de archivos del servidor. Ahora falta crear la propiedad 
+que se encarga de manejar el _objeto_ archivo, o `UploadedFile`. Para ello, en 
+`User` utiliza la propiedad `picture`, y en `Song` utiliza la propiedad 
+`file`, como sigue:
+
+```
+// En User:
+
+    .
+    .
+    .
+    /**
+     * @var UploadedFile
+     *
+     * @Assert\File(maxSize="6000000")
+     */
+    private $picture;
+    .
+    .
+    .
+
+// En Song:
+
+    .
+    .
+    .
+    /**
+     * @var UploadedFile
+     *
+     * @Assert\File(maxSize="6000000")
+     */
+    private $file;
+    .
+    .
+    .
+
+```
+
+Con esto deberíamos estar listos. A continuación guarda todo y vamos a crear 
+hacer que symfony genere todos los accesores la herramienta `app/console`:
+
+    $ php app/console doctrine:generate:entities PlSharer
+
+Nota que se generaron todos los _getters_, _setters_, y que para las clases 
+que tienen propiedades multivaluadas (relaciones uno a muchos o mucho a 
+muchos), se generó el constructor de la clase, inicializando las propiedades 
+correspondientes con el tipo `ArrayCollection` de Doctrine.
+
+Ahora creamos el esquema de datos:
+
+    $ php app/console doctrine:schema:update --force
+    Updating database schema...
+    Database schema updated successfully! "53" queries were executed
+
+Aprovecha para checkear que no tengas errores de sintaxis. Este comando, luego 
+de checkear que todas las declaraciones y aserciones tengan sentido, genera el 
+sql necesario para crear todas las tablas que mapean las clases que acabamos 
+de escribir. De ahora en adelante sólo tenemos que referirnos a estas clases  
+y Doctrine se encargará de persistirlas en la base de datos por nosotros.
+
+### Creando la autenticación
+
+Primero añadimos el campo `salt`, que será usado para complementar la 
+contraseña entrada por el usuario y almacenar una contraseña mas fuerte. Luego 
+añadimos un poco de validación, usando las anotaciones con `Assert`. Checkea 
+el código para que veas las opciones disponibles.
+
+Hagamos al usuario implementar la interfaz `AdvancedUserInterface`, y de la 
+interfaz `\Serializable` para que el mecanismo de seguridad de symfony pueda 
+hacer su trabajo de autenticación. Para ello, creamos todos los métodos 
+necesarios para su implementación:
+
+```
+    /**
+     * @inheritDoc
+     */
+    public function getRoles()
+    {
+        return array('ROLE_USER');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function eraseCredentials()
+    {
+    }
+
+    /**
+     * @see \Serializable::serialize()
+     */
+    public function serialize()
+    {
+        return serialize(array(
+            $this->id,
+        ));
+    }
+
+    /**
+     * @see \Serializable::unserialize()
+     */
+    public function unserialize($serialized)
+    {
+        list (
+            $this->id,
+        ) = unserialize($serialized);
+    }
+
+    public function isAccountNonExpired()
+    {
+        return true;
+    }
+
+    public function isAccountNonLocked()
+    {
+        return true;
+    }
+
+    public function isCredentialsNonExpired()
+    {
+        return true;
+    }
+
+    public function isEnabled()
+    {
+        return $this->isActive;
+    }
+```
+
+Luego configuramos los mecanismos de seguridad en el archivo 
+`app/config/security.yml`:
+
+```
+# app/config/security.yml
+security:
+    encoders:
+        Acme\UserBundle\Entity\User:
+            algorithm:        sha1
+            encode_as_base64: false
+            iterations:       1
+
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: [ ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH ]
+
+    providers:
+        administrators:
+            entity: { class: AcmeUserBundle:User, property: username }
+
+    firewalls:
+        admin_area:
+            pattern:    ^/admin
+            http_basic: ~
+
+    access_control:
+        - { path: ^/admin, roles: ROLE_ADMIN }
+```
 
 
 
@@ -525,3 +848,4 @@ toda la estructura de directorios, responde `yes`.
 [3]: http://getcomposer.org/ "Composer"
 [4]: # "Estructura de directorios y configuración de Symfony"
 [5]: https://github.com/throoze/plsharer "Repositorio de PlSharer"
+[6]: https://github.com/l3pp4rd/DoctrineExtensions/blob/master/doc/symfony2.md "Instalación de gedmo/doctrine-extensions"

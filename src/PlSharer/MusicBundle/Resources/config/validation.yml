@@ -1,0 +1,6 @@
+# src/PlSharer/MusicBundle/Resources/config/validation.yml
+PlSharer/MusicBundle\Entity\Song:
+    properties:
+        file:
+            - File:
+                maxSize: 6000000

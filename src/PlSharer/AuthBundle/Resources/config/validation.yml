@@ -1,0 +1,6 @@
+# src/PlSharer/AuthBundle/Resources/config/validation.yml
+PlSharer/AuthBundle\Entity\User:
+    properties:
+        picture:
+            - File:
+                maxSize: 6000000

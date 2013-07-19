@@ -1,0 +1,16 @@
+pl_sharer_search:
+    resource: "@PlSharerSearchBundle/Resources/config/routing.yml"
+    prefix:   /
+
+pl_sharer_ranking:
+    resource: "@PlSharerRankingBundle/Resources/config/routing.yml"
+    prefix:   /
+
+pl_sharer_music:
+    resource: "@PlSharerMusicBundle/Resources/config/routing.yml"
+    prefix:   /
+
+pl_sharer_auth:
+    resource: "@PlSharerAuthBundle/Resources/config/routing.yml"
+    prefix:   /
+
