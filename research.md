@@ -20,7 +20,6 @@ Tabla de contenidos
 - [Facilidades provistas por el framework (servidores web, frameworks de pruebas, cónsola para ejecución de código, etc).][i]
 - [Mecanismos de seguridad provistos por el framework, como desplegar una aplicación del framework en algún servidor web, etc.][j]
 
-<--! Referencias: -->
 
 [a]: #
 [b]: #
