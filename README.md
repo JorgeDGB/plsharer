@@ -268,11 +268,11 @@ serán modificadas por apache:
     $ chmod 777 app/cache
     $ chmod 777 app/logs
 
-Por último, copia el script que checkea la configuración para ver que todo 
-esté en orden:
+Por último, crea un link simbólico al script que checkea la configuración para 
+ver que todo esté en orden:
 
     $ cd ~/projects/plsharer
-    $ cp app/check.php web/
+    $ ln -s -T /home/user/projects/plsharer/app/check.php web/check.php
 
 Y checkea la configuración del php del terminal y el php del browser.
 
@@ -281,16 +281,78 @@ raiz de tu proyecto:
 
     $ php app/check.php
 
-Corrigelo necesario y luego checkea la configuración del php del browser 
-visitando [http://plsharer.com/check.php](http://plsharer.com/check.php) para 
+Revisa los archivos `php.ini` mencionados en el script y corrige lo necesario 
+y luego checkea la configuración del php del browser visitando [http://plsharer.com/check.php](http://plsharer.com/check.php) para 
 ver el resultado.
 
 En ambas pruebas debes obtener un resultado como éste:
 
-    RESULTADO BUENO
+```
+********************************
+*                              *
+*  Symfony requirements check  *
+*                              *
+********************************
+
+* Configuration file used by PHP: /etc/php5/apache2/php.ini
+
+** ATTENTION **
+*  The PHP CLI can use a different php.ini file
+*  than the one used with your web server.
+*  To be on the safe side, please also launch the requirements check
+*  from your web server using the web/config.php script.
+
+** Mandatory requirements **
+
+ OK       PHP version must be at least 5.3.3 (5.4.4-14+deb7u3 installed)
+ OK       PHP version must not be 5.3.16 as Symfony won't work properly with it
+ OK       Vendor libraries must be installed
+ OK       app/cache/ directory must be writable
+ OK       app/logs/ directory must be writable
+ OK       date.timezone setting must be set
+ OK       Configured default timezone "America/Caracas" must be supported by your installation of PHP
+ OK       json_encode() must be available
+ OK       session_start() must be available
+ OK       ctype_alpha() must be available
+ OK       token_get_all() must be available
+ OK       simplexml_import_dom() must be available
+ OK       APC version must be at least 3.1.13 when using PHP 5.4
+ OK       detect_unicode must be disabled in php.ini
+ OK       xdebug.show_exception_trace must be disabled in php.ini
+ OK       xdebug.scream must be disabled in php.ini
+ OK       PCRE extension must be available
+
+** Optional recommendations **
+
+ OK       xdebug.max_nesting_level should be above 100 in php.ini
+ OK       Requirements file should be up-to-date
+ OK       You should use at least PHP 5.3.4 due to PHP bug #52083 in earlier versions
+ OK       When using annotations you should have at least PHP 5.3.8 due to PHP bug #55156
+ OK       You should not use PHP 5.4.0 due to the PHP bug #61453
+ OK       PCRE extension should be at least version 8.0 (8.3 installed)
+ OK       PHP-XML module should be installed
+ OK       mb_strlen() should be available
+ OK       iconv() should be available
+ OK       utf8_decode() should be available
+ OK       posix_isatty() should be available
+ OK       intl extension should be available
+ OK       intl extension should be correctly configured
+ OK       intl ICU version should be at least 4+
+ OK       a PHP accelerator should be installed
+ OK       short_open_tag should be disabled in php.ini
+ OK       magic_quotes_gpc should be disabled in php.ini
+ OK       register_globals should be disabled in php.ini
+ OK       session.auto_start should be disabled in php.ini
+ OK       PDO should be installed
+ OK       PDO should have some drivers installed (currently available: pgsql)
+```
 
 Nota que cada prueba usa su propio `php.ini`. El mismo es indicado en el 
 principio de la salida del script de checkeo. Asegúrate de editar ambos.
+
+Ahora elimina el link simbólico:
+
+    $ rm web/check.php
 
 ¡Listo! ya está instalado y configurado Symfony2. Para información acerca de 
 la estructura de directorios generada y la configuración de Symfony2 haga clik 
