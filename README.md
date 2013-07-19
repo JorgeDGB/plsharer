@@ -63,7 +63,7 @@ características:
 > Debian-like y una conexión a internet. Se asume también que se dispone de el
 > usuario 'user', el cual debe ser `sudoer`.
 
-*******************************************************************************
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 # Instalación del entorno de desarrollo
 
@@ -73,7 +73,7 @@ Asegúrese de tener instalados los paquetes necesarios para cumplir con las
 condiciones mínimas del entorno de desarrollo. Para ello, ejecute el siguiente 
 comando:
 
-    $ sudo aptitude install curl apache2 postgresql php5 libapache2-mod-php5 php5-pgsql
+    $ sudo aptitude install curl apache2 postgresql php5 libapache2-mod-php5 php5-pgsql php5-intl php-apc
 
 > Nota:
 > 
@@ -259,7 +259,38 @@ proyecto, mostrándole una salida interactiva como sigue:
 > pdo_oci, oci8, ibm_db2, pdo_ibm, pdo_sqlsrv, mysqli, drizzle_pdo_mysql,
 > sqlsrv.
 
-En donde dice your_gmail_user, coloque la parte de su correo gmail que va antes del \@.
+En donde dice your_gmail_user, coloque la parte de su correo gmail que va 
+antes del \@.
+
+Ahora dale permisos de escritura a las carpetas de cache y log, las cuales 
+serán modificadas por apache:
+
+    $ chmod 777 app/cache
+    $ chmod 777 app/logs
+
+Por último, copia el script que checkea la configuración para ver que todo 
+esté en orden:
+
+    $ cd ~/projects/plsharer
+    $ cp app/check.php web/
+
+Y checkea la configuración del php del terminal y el php del browser.
+
+Para checkear la configuración del php de la terminar, corre desde la carpeta 
+raiz de tu proyecto:
+
+    $ php app/check.php
+
+Corrigelo necesario y luego checkea la configuración del php del browser 
+visitando [http://plsharer.com/check.php](http://plsharer.com/check.php) para 
+ver el resultado.
+
+En ambas pruebas debes obtener un resultado como éste:
+
+    RESULTADO BUENO
+
+Nota que cada prueba usa su propio `php.ini`. El mismo es indicado en el 
+principio de la salida del script de checkeo. Asegúrate de editar ambos.
 
 ¡Listo! ya está instalado y configurado Symfony2. Para información acerca de 
 la estructura de directorios generada y la configuración de Symfony2 haga clik 
@@ -397,6 +428,7 @@ recomendado por la documentación: Eliminar el Bundle de demostración
 `AcmeDemoBundle`:
 
 1. Eliminamos la carpeta `src/Acme`.
+
         $ cd ~/projects/plsharer
         $ rm -rf src/Acme
 2. Eliminamos la ruta que referencia `AcmeDemoBundle` en el archivo 
@@ -412,9 +444,19 @@ configuración de seguridad a tu conveniencia.
 Para empezar, usamos la herramienta `console` de la linea de comando de 
 Symfony2 para generar los Bundles:
 
-    $ 
+    $ php app/console generate:bundle --namespace=PlSharer/AuthBundle
+    $ php app/console generate:bundle --namespace=PlSharer/MusicBundle
+    $ php app/console generate:bundle --namespace=PlSharer/RankingBundle
+    $ php app/console generate:bundle --namespace=PlSharer/SearchBundle
 
-<--! Referencias: -->
+Una cónsola interactiva se muestra. Acepta todo a excepción del formato, para 
+el cual hemos decidido usar `yml`, y cuando te pregunte si deseas que genere 
+toda la estructura de directorios, responde `yes`.
+
+
+
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 [1]: # "Inicio de la investigación del framework"
 [2]: #tutorial-paso-a-paso "Inicio del tutorial"
