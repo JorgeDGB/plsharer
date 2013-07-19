@@ -1,6 +1,8 @@
 PlSharer
 ====================================================
+
 *Proyecto 2 -- Research and Write your Own Tutorial*
+
 *Herramientas de Programación en Internet (CI-5644)*
 
 
@@ -8,11 +10,9 @@ El siguiente proyecto tiene por finalidad mostrar las características del
 framework de desarrollo web 'Symfony2'. En el mismo, podrá encontrar lo 
 siguiente:
 
-* [Una investigación del framework][1]
-       
+* [Una investigación del framework][1]       
 * Una aplicación simple escrita usando el framework Symfony2
-
-* Documentación paso a paso (como un [tutorial][2] de el desarrollo de la
+* Documentación paso a paso (como un [tutorial][2]) de el desarrollo de la
   aplicación.
 
 Puede encontrar el README oficial que trae Symfony2 en el archivo
@@ -24,35 +24,36 @@ Tutorial Paso a Paso
 El siguiente tutorial fué desarrollado en un entorno con las siguientes
 características:
 
-Sistema Operativo:
+**Sistema Operativo:**
 
     Debian 7 Wheezy
 
-Arquitectura:
+**Arquitectura:**
 
     amd64
 
-Versión de PHP:
+**Versión de PHP:**
 
     PHP 5.4.4-14+deb7u2 (cli) (built: Jun  5 2013 07:56:44) 
     Copyright (c) 1997-2012 The PHP Group
     Zend Engine v2.4.0, Copyright (c) 1998-2012 Zend Technologies
         with Xdebug v2.2.1, Copyright (c) 2002-2012, by Derick Rethans
 
-Versión de Apache:
+**Versión de Apache:**
 
     2.2.22-13
 
-Versión de PostgreSQL:
+**Versión de PostgreSQL:**
 
     psql (PostgreSQL) 9.1.9
 
-Versión de Symfony2:
+**Versión de Symfony2:**
 
     Symfony Standard 2.3.2
 
-Versión de GIT:
-
+**Versión de GIT:**
+    
+    1.7.10.4
 
 
 > NOTA:
@@ -264,6 +265,20 @@ En donde dice your_gmail_user, coloque la parte de su correo gmail que va antes 
 la estructura de directorios generada y la configuración de Symfony2 haga clik 
 [aqui][4].
 
+> Opcional:
+> 
+> Este proyecto está siendo llevado en un repositorio en [github][5]. Se
+> recomienda hacerlo y al menos llevar un repositorio local como buena
+> práctica. Para inicializar un repositorio de git local, utilize el comando:
+> `$ git init`, situado en la carpeta raiz de su proyecto, y periódicamente
+> repita lo siguiente:
+>
+>     $ git add .
+>     $ git commit
+>
+> Se abrirá un editor. Escriba los avances desde la última vez que repitió
+> este proceso, guarde y cierre el editor.
+
 A continuación seguimos con el desarrollo de la aplicación de ejemplo.
 
 # La Aplicación - PlSharer
@@ -353,6 +368,7 @@ canciones en `SearchBundle`.
 
 Si repartimos las clases entre los bundles, tenemos:
 
+```
 AuthBundle:
     User
 
@@ -368,6 +384,7 @@ RankingBundle:
 
 SearchBundle:
     Tag
+```
 
 El ORM que usaremos es _Doctrine_. Doctrine necesita que definamos lo que el 
 llama _Entities_ o entidades, que corresponderían a cada una de las clases que 
@@ -393,13 +410,14 @@ configuración de seguridad a tu conveniencia.
 # Listo para empezar a echar código
 
 Para empezar, usamos la herramienta `console` de la linea de comando de 
-Symfony2 para crear los Bundles:
+Symfony2 para generar los Bundles:
 
     $ 
 
 <--! Referencias: -->
 
-[1]  : Inicio de la investigación del framework
-[2]  : Inicio del tutorial
-[3]  : http://getcomposer.org/
-[4]  : estructura de directorios y configuración de Symfony
+[1]: # "Inicio de la investigación del framework"
+[2]: #tutorial-paso-a-paso "Inicio del tutorial"
+[3]: http://getcomposer.org/ "Composer"
+[4]: # "Estructura de directorios y configuración de Symfony"
+[5]: https://github.com/throoze/plsharer "Repositorio de PlSharer"
