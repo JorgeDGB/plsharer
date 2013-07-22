@@ -59,7 +59,7 @@ características:
 > NOTA:
 > 
 > Las siguientes instrucciones asumen que se trabaja en un entorno similar, y
-> requieren al como mínimo una estación de trabajo con un sistema operativo
+> requiere como mínimo una estación de trabajo con un sistema operativo
 > Debian-like y una conexión a internet. Se asume también que se dispone de el
 > usuario 'user', el cual debe ser `sudoer`.
 
