@@ -133,7 +133,7 @@ Listo, ha terminado con la configuración  de PostgreSQL
 ## Configuración del servidor Web
 
 En este proyecto usaremos apache como nuestro servidor web. PHP, y 
-particularmente Sümfony2, proveen un servidor web apropiado para la etapa de
+particularmente Symfony2, proveen un servidor web apropiado para la etapa de
 desarrollo, pero explicaremos de una vez cómo configurar el servidor Apache2 
 para desplegar la aplicación. En caso de querer usar el servidor de 
 desarrollo, puede saltarse esta parte y usarlo, pero todos los ejemplos 
